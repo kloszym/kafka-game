@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092" # This maps container port 9092 to host port 9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP defines the security protocol for each listener name.
+      # PLAINTEXT is for inter-container communication (kafka:29092).
+      # PLAINTEXT_HOST is for external communication (your LAN IP on port 9092).
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      # KAFKA_ADVERTISED_LISTENERS is what Kafka tells clients to connect to.
+      # PLAINTEXT://kafka:29092 is for other containers in this docker-compose (like ksqldb-server).
+      # PLAINTEXT_HOST://192.168.31.253:9092 is for clients on your LAN (your game clients, game server).
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://192.168.31.253:9092 # <--- MODIFIED HERE
+      # KAFKA_LISTENERS are the interfaces and ports Kafka actually binds to.
+      # PLAINTEXT://0.0.0.0:29092 listens on port 29092 inside the container for inter-container traffic.
+      # PLAINTEXT_HOST://0.0.0.0:9092 listens on port 9092 inside the container for traffic mapped from the host's port 9092.
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.28.2
+    container_name: ksqldb-server
+    depends_on:
+      - kafka
+    ports:
+      - "8088:8088"
+    environment:
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: kafka:29092 # ksqlDB connects to Kafka via the internal Docker network name
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_SERVICE_ID: ksqldb_dot_collector # Changed from ksqldb_chat for clarity
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      # Disable Confluent Metrics and Version Check
+      CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+      KSQL_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.28.2
+    container_name: ksqldb-cli
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
