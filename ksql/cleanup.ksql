@@ -1,0 +1,13 @@
+-- ksql/cleanup.ksql
+-- UWAGA: Ten skrypt usuwa dane na stałe!
+-- Używaj go do "twardego resetu" środowiska deweloperskiego.
+
+-- Usuwa tabele i ich bazowe tematy w Kafce
+DROP TABLE IF EXISTS PLAYERS_TABLE DELETE TOPIC;
+DROP TABLE IF EXISTS DOTS_TABLE DELETE TOPIC;
+
+-- Usuwa strumienie i ich bazowe tematy w Kafce
+DROP STREAM IF EXISTS PLAYER_STATE_UPDATES_STREAM DELETE TOPIC;
+DROP STREAM IF EXISTS DOT_EVENTS_STREAM DELETE TOPIC;
+
+-- Nie ma tu polecenia "exit;"!

@@ -1,4 +1,4 @@
-# game_client/client.py
+# game_client/client.py (Poprawiona wersja)
 import pygame, uuid, json, threading, time, random
 from pygame.math import Vector2
 import sys, os
@@ -21,13 +21,20 @@ class GameClient:
         self.producer = Producer({'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS})
         self.consumer = Consumer({'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS, 'group.id': f'client-group-{uuid.uuid4().hex}', 'auto.offset.reset': 'earliest'})
         self.consumer.subscribe([PLAYERS_TABLE_TOPIC, DOTS_TABLE_TOPIC, GAME_EVENTS_TOPIC])
-        
+
         self.players = {}; self.dots = {}; self.rendered_players = {}
+        self.shared_score = 0
         self.state_lock = threading.Lock(); self.running = True
         pygame.init(); self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT)); self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Verdana", 18); self.font_name = pygame.font.SysFont("Verdana", 12)
         self.player_velocity = Vector2(0,0); self.last_action_send_time = 0
         
+        self.dot_colors = {
+            DOT_TYPE_STANDARD: COLOR_DOT,
+            DOT_TYPE_SHARED_POSITIVE: COLOR_DOT_SHARED_POSITIVE,
+            DOT_TYPE_SHARED_NEGATIVE: COLOR_DOT_SHARED_NEGATIVE
+        }
+
         threading.Thread(target=self.consume_loop, daemon=True).start()
         self.send_action("move", 0, 0)
 
@@ -42,12 +49,16 @@ class GameClient:
             if not msg or msg.error(): continue
             key = msg.key().decode('utf-8') if msg.key() else None
             value = json.loads(msg.value())
-            
+
             with self.state_lock:
                 topic = msg.topic()
                 if topic == PLAYERS_TABLE_TOPIC:
-                    if value: self.players[key] = value
-                    else: self.players.pop(key, None)
+                    if value:
+                        self.players[key] = value
+                        if 'SHARED_SCORE' in value:
+                            self.shared_score = value['SHARED_SCORE']
+                    else:
+                        self.players.pop(key, None)
                 elif topic == DOTS_TABLE_TOPIC:
                     if value: self.dots[key] = value
                     else: self.dots.pop(key, None)
@@ -60,7 +71,7 @@ class GameClient:
                         self.dots.pop(event['dot_id'], None)
                     elif event['type'] == 'DOT_CREATED':
                         dot = event['dot']
-                        self.dots[dot['id']] = dot # ZDARZENIE MA MAŁE LITERY
+                        self.dots[dot['id']] = dot
                     elif event['type'] == 'PLAYER_LEFT':
                         self.players.pop(event['player_id'], None); self.rendered_players.pop(event['player_id'], None)
 
@@ -76,7 +87,7 @@ class GameClient:
 
     def update(self, dt):
         with self.state_lock:
-            for pid, p_data in self.players.items(): # Z tabeli (WIELKIE LITERY)
+            for pid, p_data in self.players.items():
                 if pid not in self.rendered_players:
                     self.rendered_players[pid] = {'render_pos': Vector2(p_data.get('X',0), p_data.get('Y',0)),
                                                   'server_pos': Vector2(p_data.get('X',0), p_data.get('Y',0))}
@@ -89,22 +100,30 @@ class GameClient:
     def draw(self):
         self.screen.fill(COLOR_BACKGROUND_TOP)
         with self.state_lock:
-            for d in self.dots.values(): # Może być z obu źródeł
-                pygame.draw.circle(self.screen, COLOR_DOT, (d.get('x', d.get('X')), d.get('y', d.get('Y'))), DOT_SIZE)
+            for d in self.dots.values():
+                dot_type = d.get('type', d.get('TYPE'))
+                color = self.dot_colors.get(dot_type, COLOR_DOT)
+                pygame.draw.circle(self.screen, color, (d.get('x', d.get('X')), d.get('y', d.get('Y'))), DOT_SIZE)
+
             for pid, r_data in self.rendered_players.items():
-                p_data = self.players.get(pid, {}) # Z tabeli (WIELKIE LITERY)
+                p_data = self.players.get(pid, {})
                 color = COLOR_PLAYER_SELF if pid == self.player_id else COLOR_PLAYER_OTHER
                 pos = r_data['render_pos']
                 pygame.draw.rect(self.screen, color, (pos.x - PLAYER_SIZE/2, pos.y - PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE), border_radius=5)
                 name_surf = self.font_name.render(p_data.get('USERNAME', '...'), True, COLOR_TEXT)
                 self.screen.blit(name_surf, (pos.x - name_surf.get_width()/2, pos.y - PLAYER_SIZE/2 - 15))
-            
-            score_panel=pygame.Surface((SCORE_PANEL_WIDTH,WINDOW_HEIGHT),pygame.SRCALPHA); score_panel.fill(COLOR_SCORE_PANEL)
-            self.screen.blit(score_panel,(CANVAS_WIDTH,0)); pygame.draw.line(self.screen,COLOR_DIVIDER,(CANVAS_WIDTH,0),(CANVAS_WIDTH,WINDOW_HEIGHT),2)
-            self.screen.blit(self.font.render("Scores",True,COLOR_TEXT),(CANVAS_WIDTH+20,20)); y=50
-            for p in sorted(self.players.values(), key=lambda x: x.get('SCORE', 0), reverse=True): # Z tabeli (WIELKIE LITERY)
-                score_text = f"{p.get('USERNAME', '...')}: {p.get('SCORE', 0)}"
-                self.screen.blit(self.font.render(score_text, True, COLOR_TEXT), (CANVAS_WIDTH+20, y)); y+=30
+
+        score_panel=pygame.Surface((SCORE_PANEL_WIDTH,WINDOW_HEIGHT),pygame.SRCALPHA); score_panel.fill(COLOR_SCORE_PANEL)
+        self.screen.blit(score_panel,(CANVAS_WIDTH,0)); pygame.draw.line(self.screen,COLOR_DIVIDER,(CANVAS_WIDTH,0),(CANVAS_WIDTH,WINDOW_HEIGHT),2)
+        self.screen.blit(self.font.render("Scores",True,COLOR_TEXT),(CANVAS_WIDTH+20,20)); y=50
+        for p in sorted(self.players.values(), key=lambda x: x.get('SCORE', 0), reverse=True):
+            score_text = f"{p.get('USERNAME', '...')}: {p.get('SCORE', 0)}"
+            self.screen.blit(self.font.render(score_text, True, COLOR_TEXT), (CANVAS_WIDTH+20, y)); y+=30
+        
+        y += 20
+        shared_score_text = f"Shared Score: {self.shared_score}"
+        self.screen.blit(self.font.render(shared_score_text, True, COLOR_TEXT_HIGHLIGHT), (CANVAS_WIDTH + 20, y))
+
         pygame.display.flip()
 
     def run(self):
