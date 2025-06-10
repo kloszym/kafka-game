@@ -4,11 +4,11 @@
 
 Watch the gameplay:
 *(Ensure video files are in the `img/` directory and named as below)*
-*   [Gameplay Demo 1 (Single Screen)](img/video_gameplay_example_1.mp4)
-*   [Gameplay Demo 2 (Two Laptops)](img/video_gameplay_example_2_two_laptops.mp4)
-*   [Gameplay Demo 3 (Different Winner)](img/video_gameplay_example_3_different_winner.mp4)
+*   [Gameplay Demo 1 (Single Screen)](img/2025-06-10_23-14-58.mp4)
+*   [Gameplay Demo 2 (Two Laptops)](img/2025-06-10_23-15-54.mp4)
+*   [Gameplay Demo 3 (Different Winner)](img/VID_20250610_231247.mp4)
 
-![Multiplayer Kafka Game in action across two laptops](img/12.jpg)
+![Multiplayer Kafka Game in action across two laptops](img/14.jpg)
 
 ## 🚀 Overview
 
@@ -47,7 +47,7 @@ The Kafka Game system is a symphony of interconnected components, communicating 
         *   `DOT_EVENTS_TOPIC`: For publishing dot creation and collection events (using tombstones for deletion) to ksqlDB for the `DOTS_TABLE`.
 
 **3. Apache Kafka (Managed by `docker-compose.yml`):**
-    *   The distributed, fault-tolerant messaging backbone that enables asynchronous communication and decouples all system components.
+    *   The distributed, fault-tolerant, messaging backbone that enables asynchronous communication and decouples all system components.
     *   Broker IP and port are configured in `common/config.py`.
 
 **4. ksqlDB (Managed by `docker-compose.yml`):**
@@ -87,7 +87,7 @@ The Kafka Game system is a symphony of interconnected components, communicating 
 **Prerequisites:**
 -   Python 3.8+ and `pip`
 -   Docker Engine & Docker Compose (Docker Desktop is recommended)
-    ![Docker Desktop Starting Engine](img/18.png)
+    ![Docker Desktop Starting Engine](img/2.png)
 
 **Steps:**
 
@@ -116,13 +116,13 @@ The Kafka Game system is a symphony of interconnected components, communicating 
     ```bash
     docker-compose up -d
     ```
-    ![Docker Compose Up Command Output in terminal](img/2.png)
+    ![Docker Compose Up Command Output in terminal](img/4.png)
 
     Verify containers are running via Docker Desktop:
-    ![Docker Desktop list of running containers](img/3.png)
+    ![Docker Desktop list of running containers](img/5.png)
 
     Optionally, check ksqlDB server logs for successful startup:
-    ![Docker Desktop logs for ksqlDB server container](img/4.png)
+    ![Docker Desktop logs for ksqlDB server container](img/6.png)
 
 5.  **Initialize Kafka Topics:**
     This script (`setup_environments.py`) creates the necessary Kafka topics.
@@ -135,17 +135,17 @@ The Kafka Game system is a symphony of interconnected components, communicating 
         ```bash
         docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
         ```
-        ![Terminal command to enter ksqlDB CLI](img/5.png)
+         ![Terminal command to enter ksqlDB CLI](img/7.png)
 
-        You'll be greeted by the ksqlDB CLI:
-        ![ksqlDB CLI welcome message and status screen](img/6.png)
+      You'll be greeted by the ksqlDB CLI:
+      ![ksqlDB CLI welcome message and status screen](img/8.png)
 
     b.  Execute the ksqlDB Logic:
         Open `ksql/game_logic.ksql`.
-        ![VS Code showing contents of game_logic.ksql file](img/7.png)
+        ![VS Code showing contents of game_logic.ksql file](img/9.png)
 
         Copy the entire content of `ksql/game_logic.ksql` and paste it into the ksqlDB CLI. Press Enter.
-        ![VS Code integrated terminal showing ksqlDB commands being pasted/executed. A Pygame client window showing "GAME OVER" is visible in the background within VS Code.](img/8.png)
+        ![VS Code integrated terminal showing ksqlDB commands being pasted/executed. A Pygame client window showing "GAME OVER" is visible in the background within VS Code.](img/10.png)
 
         This script defines how ksqlDB processes game data, for example:
         ```ksql
@@ -168,7 +168,7 @@ The Kafka Game system is a symphony of interconnected components, communicating 
         SHOW TABLES;
         ```
         You should see `PLAYERS_TABLE` and `DOTS_TABLE`.
-        ![ksqlDB CLI output for SHOW TABLES command](img/13.png)
+        ![ksqlDB CLI output for SHOW TABLES command](img/15.png)
 
 ## ▶️ How to Run the Game
 
@@ -180,9 +180,9 @@ The Kafka Game system is a symphony of interconnected components, communicating 
     ```bash
     python game_server/server.py
     ```
-    ![Game server initial output in terminal](img/9.png)
+    ![Game server initial output in terminal](img/11.png)
     Watch for logs indicating player joins:
-    ![Game server terminal output showing players joining](img/14.png)
+    ![Game server terminal output showing players joining](img/16.png)
 
 4.  **Launch Game Clients (`game_client/client.py`):**
     For each player, open a new terminal (on the same or different machines on the network) and run:
@@ -190,13 +190,13 @@ The Kafka Game system is a symphony of interconnected components, communicating 
     python game_client/client.py
     ```
     Enter a username when prompted:
-    ![Game client terminal output showing username prompt](img/10.png)
+    ![Game client terminal output showing username prompt](img/12.png)
 
 5.  **Enjoy the Game!**
     Use `W, A, S, D` or `Arrow Keys` to move. Collect dots, watch the scores, and aim for victory!
-    ![Pygame client window showing single player gameplay](img/11.png)
+    ![Pygame client window showing single player gameplay](img/13.png)
 
-    The game concludes with a "GAME OVER" screen (visible in the background of `img/8.png`).
+    The game concludes with a "GAME OVER" screen (visible in the background of `img/10.png`).
 
 ## 🔍 Inspecting Live Game State with ksqlDB
 
@@ -207,18 +207,18 @@ Peek into the authoritative game state directly via ksqlDB:
     ```ksql
     SELECT * FROM DOTS_TABLE EMIT CHANGES;
     ```
-    ![ksqlDB CLI output for SELECT query on DOTS_TABLE](img/15.png)
+    ![ksqlDB CLI output for SELECT query on DOTS_TABLE](img/17.png)
 
     View player states:
     ```ksql
     SELECT * FROM PLAYERS_TABLE EMIT CHANGES;
     ```
-    ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (header)](img/16.png)
-    ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (data)](img/17.png)
+    ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (header)](img/0.png)
+    ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (data)](img/1.png)
 
 ## 📂 Project Structure Overview
 A look at the project's organization:
-![VS Code file explorer view of the project structure](img/19.png)
+![VS Code file explorer view of the project structure](img/20.png)
 ```
 kafka-game/
 ├── common/
@@ -232,10 +232,28 @@ kafka-game/
 │   ├── cleanup.ksql        # (Optional) For resetting ksqlDB objects
 │   └── game_logic.ksql     # ksqlDB stream & table definitions
 ├── img/                    # Images and videos for this README
+│   ├── 0.png
 │   ├── 1.png
 │   ├── 2.png
-│   ├── ... (and so on for all 19 images and 3 videos)
-│   └── 19.png
+│   ├── 3.png
+│   ├── 4.png
+│   ├── 5.png
+│   ├── 6.png
+│   ├── 7.png
+│   ├── 8.png
+│   ├── 9.png
+│   ├── 10.png
+│   ├── 11.png
+│   ├── 12.png
+│   ├── 13.png
+│   ├── 14.jpg
+│   ├── 15.png
+│   ├── 16.png
+│   ├── 17.png
+│   ├── 20.png
+│   ├── 2025-06-10_23-14-58.mp4
+│   ├── 2025-06-10_23-15-54.mp4
+│   └── VID_20250610_231247.mp4
 ├── .gitignore
 ├── docker-compose.yml      # Defines Docker services (Kafka, Zookeeper, ksqlDB)
 ├── README.md               # This masterpiece!
@@ -249,7 +267,7 @@ To gracefully shut down and remove all Docker containers, networks, and volumes:
 ```bash
 docker-compose down -v --remove-orphans
 ```
-![Terminal output of docker-compose down command](img/1.png)
+![Terminal output of docker-compose down command](img/3.png)
 
 ---
 
