@@ -3,18 +3,16 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka import KafkaException
 import sys
 
-# Add project root to path to allow importing from 'common'
 sys.path.append('.')
-from common.config import KAFKA_BOOTSTRAP_SERVERS, PLAYER_ACTIONS_TOPIC, GAME_STATE_TOPIC
+from common.config import *
 
 def setup_game_environment():
-    """Connects to Kafka and creates the necessary topics for the game."""
-    print("Setting up Kafka environment for Dot Collector...")
+    print("Setting up Kafka environment for ksqlDB-based Dot Collector...")
     admin_config = {'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS}
 
-    # Retry logic for connecting to Kafka, as it might take a moment to start up
+    # ... (logika łączenia i retry jak w oryginale)
     max_retries = 5
-    retry_delay = 10  # seconds
+    retry_delay = 10 
     for attempt in range(max_retries):
         try:
             admin_client = AdminClient(admin_config)
@@ -30,19 +28,23 @@ def setup_game_environment():
                 print("Could not connect to Kafka after multiple retries. Aborting.")
                 return
 
+    # Lista wszystkich tematów potrzebnych w nowej architekturze
     topics_to_create = [
         NewTopic(PLAYER_ACTIONS_TOPIC, num_partitions=1, replication_factor=1),
-        NewTopic(GAME_STATE_TOPIC, num_partitions=1, replication_factor=1)
+        NewTopic(DOT_EVENTS_TOPIC, num_partitions=1, replication_factor=1),
+        NewTopic(PLAYER_STATE_UPDATES_TOPIC, num_partitions=1, replication_factor=1),
+        # Tematy tabel nie muszą być tworzone ręcznie, ksqlDB zrobi to za nas,
+        # ale jawne utworzenie ich nie zaszkodzi.
+        NewTopic(PLAYERS_TABLE_TOPIC, num_partitions=1, replication_factor=1),
+        NewTopic(DOTS_TABLE_TOPIC, num_partitions=1, replication_factor=1)
     ]
 
-    # Create the topics
     futures = admin_client.create_topics(topics_to_create)
     for topic, future in futures.items():
         try:
-            future.result()  # The result itself is None on success
+            future.result()
             print(f"Topic '{topic}' created successfully.")
         except Exception as e:
-            # Check if the topic already exists, which is not an error
             if "TOPIC_ALREADY_EXISTS" in str(e).upper():
                 print(f"Topic '{topic}' already exists.")
             else:

@@ -1,34 +1,19 @@
-"""
-common/config.py
-
-Shared configuration for the Kafka Dot Collector game.
-"""
-
-# --- Kafka Configuration ---
-# This IP should be the LAN IP of the machine RUNNING DOCKER (and thus Kafka)
-# It MUST match the IP in KAFKA_ADVERTISED_LISTENERS in docker-compose.yml
-KAFKA_BROKER_IP = "192.168.239.218"
+# common/config.py
+KAFKA_BROKER_IP = "192.168.239.218" # !!! Upewnij się, że to Twój IP !!!
 KAFKA_BOOTSTRAP_SERVERS = f"{KAFKA_BROKER_IP}:9092"
 
-# Kafka Topics
-PLAYER_ACTIONS_TOPIC = "player_actions"
-GAME_STATE_TOPIC = "game_state"
+# Tematy dla architektury hybrydowej
+PLAYER_ACTIONS_TOPIC = "player_actions" # Wejście: Klient -> Serwer
+GAME_EVENTS_TOPIC = "game_events"       # Szybka ścieżka: Serwer -> Klient (surowe zdarzenia)
+PLAYER_STATE_UPDATES_TOPIC = "player_state_updates" # Wejście do ksqlDB: Serwer -> ksqlDB
+DOT_EVENTS_TOPIC = "dot_events" # Wejście do ksqlDB: Serwer -> ksqlDB
 
+# Tematy tabel - wolna, autorytatywna ścieżka
+PLAYERS_TABLE_TOPIC = "players_table_topic" # ksqlDB -> Klient
+DOTS_TABLE_TOPIC = "dots_table_topic"     # ksqlDB -> Klient
 
-# --- Game Settings ---
-CANVAS_WIDTH = 800
-CANVAS_HEIGHT = 600
-PLAYER_SIZE = 25
-DOT_SIZE = 10
-GAME_TICK_RATE = 1.0 / 20.0  # 20 updates per second
-
-# --- New Gameplay Rules ---
-WINNING_SCORE = 30
-MAX_DOTS = 30
-PLAYER_TIMEOUT_SECONDS = 15.0 # How long before a non-responsive player is removed
-PLAYER_SPEED = 200 # pixels per second, used by the server
-
-# --- New Dot Types ---
-DOT_TYPE_STANDARD = "standard"
-DOT_TYPE_SHARED_POSITIVE = "team_positive"
-DOT_TYPE_SHARED_NEGATIVE = "team_negative"
+# Ustawienia gry
+CANVAS_WIDTH=800; CANVAS_HEIGHT=600; PLAYER_SIZE=25; DOT_SIZE=10
+GAME_TICK_RATE=1.0/30.0; PLAYER_SPEED=250
+WINNING_SCORE=30; MAX_DOTS=30; PLAYER_TIMEOUT_SECONDS=15.0
+DOT_TYPE_STANDARD="standard"; DOT_TYPE_SHARED_POSITIVE="team_positive"; DOT_TYPE_SHARED_NEGATIVE="team_negative"
