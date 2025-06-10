@@ -5,6 +5,7 @@
 Watch the gameplay:
 *(Ensure video files are in the `img/` directory and named as below)*
 *   [Gameplay Demo 1 (Single Screen)](img/2025-06-10_23-14-58.mp4)
+*   [![Gameplay Demo 1 (Single Screen)](https://raw.githubusercontent.com/adriankrawczyk/kafka-game/master/img/20.png)](https://raw.githubusercontent.com/adriankrawczyk/kafka-game/master/img/2025-06-10_23-14-58.mp4)
 *   [Gameplay Demo 2 (Two Laptops)](img/2025-06-10_23-15-54.mp4)
 *   [Gameplay Demo 3 (Different Winner)](img/VID_20250610_231247.mp4)
 
