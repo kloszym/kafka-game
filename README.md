@@ -3,16 +3,13 @@
 **Experience dynamic multiplayer action fueled by the power of event-driven architecture!** This project demonstrates a sophisticated real-time game where players navigate a shared world, collect dots, and compete for the highest score, all orchestrated through Apache Kafka and ksqlDB.
 
 Watch the gameplay:
-*(Ensure video files are in the `img/` directory and named as below)*
-*   [Gameplay Demo 1 (Single Screen)](img/2025-06-10_23-14-58.mp4)
-*   [![Gameplay Demo 1 (Single Screen)](https://github.com/user-attachments/assets/c9044d53-9faf-48b7-93a1-cc41b833f6e2)
+*   [![Gameplay Demo 1 (Single Screen)](img/13.png)
 ](https://github.com/user-attachments/assets/c9044d53-9faf-48b7-93a1-cc41b833f6e2)
-*   [![Gameplay Demo 2 (Two Laptops)](https://github.com/user-attachments/assets/14b5228c-6a3e-40f3-872f-85f9f4c15035)
+*   [![Gameplay Demo 2 (Two Laptops)](img/14.jpg)
 ](https://github.com/user-attachments/assets/14b5228c-6a3e-40f3-872f-85f9f4c15035)
-*   [![Gameplay Demo 3 (Different Winner)](https://github.com/user-attachments/assets/fe0cf99c-b3bc-45b8-8e80-86cc611e4da7)
+*   [![Gameplay Demo 3 (Different Winner)](img/13.png)
 ](https://github.com/user-attachments/assets/fe0cf99c-b3bc-45b8-8e80-86cc611e4da7)
 
-![Multiplayer Kafka Game in action across two laptops](img/14.jpg)
 
 ## 🚀 Overview
 
