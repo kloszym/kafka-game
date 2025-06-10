@@ -1,13 +1,31 @@
 -- ksql/cleanup.ksql
--- UWAGA: Ten skrypt usuwa dane na stałe!
--- Używaj go do "twardego resetu" środowiska deweloperskiego.
+-- Comprehensive cleanup script for all ksqlDB streams, tables and topics
+-- Run this to completely clean up the game logic setup
 
--- Usuwa tabele i ich bazowe tematy w Kafce
+-- Set offset reset to earliest for consistency
+SET 'auto.offset.reset' = 'earliest';
+
+-- === DROP TABLES (ORDER MATTERS - DEPENDENT OBJECTS FIRST) ===
+-- Drop materialized views/tables first since they depend on streams
+
+-- Drop the players table and its underlying topic
 DROP TABLE IF EXISTS PLAYERS_TABLE DELETE TOPIC;
+
+-- Drop the dots table and its underlying topic  
 DROP TABLE IF EXISTS DOTS_TABLE DELETE TOPIC;
 
--- Usuwa strumienie i ich bazowe tematy w Kafce
+-- === DROP STREAMS ===
+-- Drop source streams and their topics
+
+-- Drop player state updates stream and topic
 DROP STREAM IF EXISTS PLAYER_STATE_UPDATES_STREAM DELETE TOPIC;
+
+-- Drop dot events stream and topic
 DROP STREAM IF EXISTS DOT_EVENTS_STREAM DELETE TOPIC;
 
--- Nie ma tu polecenia "exit;"!
+-- === VERIFICATION QUERIES ===
+-- Uncomment these to verify cleanup was successful
+
+-- SHOW STREAMS;
+-- SHOW TABLES;
+-- SHOW TOPICS;
