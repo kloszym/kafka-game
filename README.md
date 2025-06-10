@@ -5,9 +5,12 @@
 Watch the gameplay:
 *(Ensure video files are in the `img/` directory and named as below)*
 *   [Gameplay Demo 1 (Single Screen)](img/2025-06-10_23-14-58.mp4)
-*   [![Gameplay Demo 1 (Single Screen)](https://raw.githubusercontent.com/adriankrawczyk/kafka-game/master/img/20.png)](https://raw.githubusercontent.com/adriankrawczyk/kafka-game/master/img/2025-06-10_23-14-58.mp4)
-*   [Gameplay Demo 2 (Two Laptops)](img/2025-06-10_23-15-54.mp4)
-*   [Gameplay Demo 3 (Different Winner)](img/VID_20250610_231247.mp4)
+*   [![Gameplay Demo 1 (Single Screen)](https://github.com/user-attachments/assets/c9044d53-9faf-48b7-93a1-cc41b833f6e2)
+](https://github.com/user-attachments/assets/c9044d53-9faf-48b7-93a1-cc41b833f6e2)
+*   [![Gameplay Demo 2 (Two Laptops)](https://github.com/user-attachments/assets/14b5228c-6a3e-40f3-872f-85f9f4c15035)
+](https://github.com/user-attachments/assets/14b5228c-6a3e-40f3-872f-85f9f4c15035)
+*   [![Gameplay Demo 3 (Different Winner)](https://github.com/user-attachments/assets/fe0cf99c-b3bc-45b8-8e80-86cc611e4da7)
+](https://github.com/user-attachments/assets/fe0cf99c-b3bc-45b8-8e80-86cc611e4da7)
 
 ![Multiplayer Kafka Game in action across two laptops](img/14.jpg)
 
