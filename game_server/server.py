@@ -12,7 +12,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from common.config import *
 
-WINNING_SCORE = 30 # NOWOŚĆ: Definicja progu zwycięstwa
+WINNING_SCORE = 30 
 
 class GameServer:
     def __init__(self):
@@ -24,7 +24,6 @@ class GameServer:
         })
         self.consumer.subscribe([PLAYER_ACTIONS_TOPIC])
         self.running = True
-        # NOWOŚĆ: Zmieniamy 'winner' na None na starcie
         self.state = {"players": {}, "dots": [], "shared_score": 0, "winner": None}
         self.player_velocities = {}
         self.state_lock = threading.Lock()

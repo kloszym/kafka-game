@@ -51,7 +51,7 @@ class GameClient:
         self.dots = {}
         self.rendered_players = {}
         self.shared_score = 0
-        self.winner = None  # NOWOŚĆ: Przechowuje informacje o zwycięzcy
+        self.winner = None  
         self.state_lock = threading.Lock()
         self.running = True
         self.game_state_loaded = False
@@ -146,7 +146,6 @@ class GameClient:
             if e.type == pygame.QUIT:
                 self.running = False; return
 
-        # NOWOŚĆ: Blokuj sterowanie po zakończeniu gry
         if not self.game_state_loaded or self.winner:
             self.player_velocity.x = 0; self.player_velocity.y = 0
             return
