@@ -146,21 +146,72 @@ The Kafka Game system is a symphony of interconnected components, communicating 
         ![VS Code showing contents of game_logic.ksql file](img/9.png)
 
         Copy the entire content of `ksql/game_logic.ksql` and paste it into the ksqlDB CLI. Press Enter.
-        ![VS Code integrated terminal showing ksqlDB commands being pasted/executed. A Pygame client window showing "GAME OVER" is visible in the background within VS Code.](img/10.png)
-
-        This script defines how ksqlDB processes game data, for example:
+        This script defines how ksqlDB processes game data:
         ```ksql
-        -- ksql/game_logic.ksql (snippet)
-        SET 'auto.offset.reset' = 'earliest';
+-- ksql/game_logic.ksql (Ostateczna, działająca wersja)
 
-        CREATE STREAM IF NOT EXISTS PLAYER_STATE_UPDATES_STREAM (
-            player_id VARCHAR KEY, username VARCHAR, x DOUBLE, y DOUBLE, score INT,
-            shared_score INT, last_seen BIGINT, winner_id VARCHAR, winner_username VARCHAR
-        ) WITH (KAFKA_TOPIC = 'player_state_updates', VALUE_FORMAT = 'JSON');
+SET 'auto.offset.reset' = 'earliest';
 
-        CREATE TABLE IF NOT EXISTS PLAYERS_TABLE AS
-            SELECT player_id, LATEST_BY_OFFSET(username) AS username, LATEST_BY_OFFSET(x) AS x, /* ... more fields */
-            FROM PLAYER_STATE_UPDATES_STREAM GROUP BY player_id EMIT CHANGES;
+-- === STRUMIENIE WEJŚCIOWE ZDARZEŃ ===
+-- Definiujemy, jak wyglądają zdarzenia przychodzące od serwera gry.
+-- ksqlDB będzie je tworzyć, jeśli nie istnieją.
+
+CREATE STREAM IF NOT EXISTS PLAYER_STATE_UPDATES_STREAM (
+    player_id VARCHAR KEY,
+    username VARCHAR,
+    x DOUBLE,
+    y DOUBLE,
+    score INT,
+    shared_score INT,
+    last_seen BIGINT,
+    winner_id VARCHAR,
+    winner_username VARCHAR
+) WITH (
+    KAFKA_TOPIC = 'player_state_updates',
+    VALUE_FORMAT = 'JSON',
+    PARTITIONS = 1, REPLICAS = 1
+);
+
+CREATE STREAM IF NOT EXISTS DOT_EVENTS_STREAM (
+    id VARCHAR KEY,
+    x INT,
+    y INT,
+    type VARCHAR
+) WITH (
+    KAFKA_TOPIC = 'dot_events',
+    VALUE_FORMAT = 'JSON',
+    PARTITIONS = 1, REPLICAS = 1
+);
+
+
+-- === TABELE STANU (ZMATERIALIZOWANE WIDOKI) ===
+-- To jest "read model" - stan, który będą czytać klienci.
+
+CREATE TABLE IF NOT EXISTS PLAYERS_TABLE WITH (KAFKA_TOPIC='players_table_topic', VALUE_FORMAT='JSON') AS
+SELECT
+    -- Poprawny sposób na włączenie klucza do wartości rekordu
+    player_id AS PLAYER_ID,
+    LATEST_BY_OFFSET(username) AS USERNAME,
+    LATEST_BY_OFFSET(x) AS X,
+    LATEST_BY_OFFSET(y) AS Y,
+    LATEST_BY_OFFSET(score) AS SCORE,
+    LATEST_BY_OFFSET(shared_score) AS SHARED_SCORE,
+    LATEST_BY_OFFSET(last_seen) AS LAST_SEEN,
+    LATEST_BY_OFFSET(winner_id) AS WINNER_ID,
+    LATEST_BY_OFFSET(winner_username) AS WINNER_USERNAME
+FROM PLAYER_STATE_UPDATES_STREAM
+GROUP BY player_id
+EMIT CHANGES;
+
+CREATE TABLE IF NOT EXISTS DOTS_TABLE WITH (KAFKA_TOPIC='dots_table_topic', VALUE_FORMAT='JSON') AS
+SELECT
+    id AS ID,
+    LATEST_BY_OFFSET(x) AS X,
+    LATEST_BY_OFFSET(y) AS Y,
+    LATEST_BY_OFFSET(type) AS TYPE
+FROM DOT_EVENTS_STREAM
+GROUP BY id
+EMIT CHANGES;
         ```
 
     c.  Verify Table Creation:
