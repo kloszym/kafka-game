@@ -1,6 +1,7 @@
 # Kafka Game: Real-Time Multiplayer Dot Collector 🎮
 
-**Experience dynamic multiplayer action fueled by the power of event-driven architecture!** This project demonstrates a sophisticated real-time game where players navigate a shared world, collect dots, and compete for the highest score, all orchestrated through Apache Kafka and ksqlDB.
+**Experience dynamic multiplayer action fueled by the power of event-driven architecture!** This project showcases the usage of streaming databases for multiplayer games!
+We used Apache Kafka, which is an open-source distributed event streaming platform and ksqlDB, a streaming SQL engine.
 
 Watch the gameplay:
 *   [![Gameplay Demo 1 (Single Screen)](img/13.png)
