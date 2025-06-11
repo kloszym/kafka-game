@@ -148,7 +148,7 @@ The Kafka Game system is a symphony of interconnected components, communicating 
 Copy the entire content of `ksql/game_logic.ksql` and paste it into the ksqlDB CLI. Press Enter.
 This script defines how ksqlDB processes game data:
 
-```bash
+```ksql
 SET 'auto.offset.reset' = 'earliest';
 
 -- === STRUMIENIE WEJŚCIOWE ZDARZEŃ ===
@@ -210,7 +210,7 @@ SELECT
 FROM DOT_EVENTS_STREAM
 GROUP BY id
 EMIT CHANGES;
-        ```  ```
+``` 
 
     c.  Verify Table Creation:
         In the ksqlDB CLI:
