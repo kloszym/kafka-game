@@ -232,29 +232,6 @@ kafka-game/
 ├── ksql/
 │   ├── cleanup.ksql        # (Optional) For resetting ksqlDB objects
 │   └── game_logic.ksql     # ksqlDB stream & table definitions
-├── img/                    # Images and videos for this README
-│   ├── 0.png
-│   ├── 1.png
-│   ├── 2.png
-│   ├── 3.png
-│   ├── 4.png
-│   ├── 5.png
-│   ├── 6.png
-│   ├── 7.png
-│   ├── 8.png
-│   ├── 9.png
-│   ├── 10.png
-│   ├── 11.png
-│   ├── 12.png
-│   ├── 13.png
-│   ├── 14.jpg
-│   ├── 15.png
-│   ├── 16.png
-│   ├── 17.png
-│   ├── 20.png
-│   ├── 2025-06-10_23-14-58.mp4
-│   ├── 2025-06-10_23-15-54.mp4
-│   └── VID_20250610_231247.mp4
 ├── .gitignore
 ├── docker-compose.yml      # Defines Docker services (Kafka, Zookeeper, ksqlDB)
 ├── README.md               # This masterpiece!
