@@ -14,42 +14,42 @@ Watch the gameplay:
 
 ## 🚀 Overview
 
-This is simple, proof of concept gameplay made just to show how the streaming databases work in multiplayer game solutions. Players control squares, aiming to collect dots that appear randomly. Each collected dot contributes to an individual score, while special dots can affect a shared team score. When a player gets 30 points, he wins. The game uses streams to ensure reliable communication between clients and the server. ksqlDB is employed for stateful stream processing, providing a real-time view of the game state. The entire backend infrastructure is containerized with Docker for easy deployment and management.
+This is a simple, proof of concept gameplay made just to show how the streaming databases work in multiplayer game solutions. Players control squares, aiming to collect dots that appear randomly. Each collected dot contributes to an individual score, while special dots can affect a shared team score. When a player gets 30 points, he wins. The game uses streams to ensure reliable communication between clients and the server. ksqlDB is employed for stateful stream processing, providing a real-time view of the game state. The entire backend infrastructure is containerized with Docker for easy deployment and management.
 
 ## ✨ Key Features
 
 *   **Real-Time Multiplayer:** Engage multiple players simultaneously in a dynamic, shared game environment.
 *   **Event-Driven Core:** Utilizes Apache Kafka for robust, decoupled communication, forming the heart of the game's architecture.
-*   **Stateful Stream Processing with ksqlDB:** Leverages ksqlDB to transform raw game event streams into durable, queryable tables (`PLAYERS_TABLE`, `DOTS_TABLE`), maintaining an authoritative game state.
+*   **Stateful Stream Processing with ksqlDB:** Leverages ksqlDB to transform raw game event streams into tables (`PLAYERS_TABLE`, `DOTS_TABLE`), maintaining an readable game state.
 *   **Hybrid Communication Strategy:**
-    *   **Fast Path:** Low-latency `GAME_EVENTS_TOPIC` delivers immediate UI updates to clients (player movements, dot spawns).
-    *   **Authoritative Path:** Server events are fed into ksqlDB (`PLAYER_STATE_UPDATES_TOPIC`, `DOT_EVENTS_TOPIC`) to build a consistent, canonical game state.
-*   **Dockerized Ecosystem:** Kafka, Zookeeper, ksqlDB Server, and ksqlDB CLI are managed via `docker-compose.yml` for effortless setup and teardown.
-*   **Interactive Pygame Client:** A rich graphical client (`game_client/client.py`) built with Pygame offers an engaging player experience.
+    *   **Fast Path:** Low-latency `GAME_EVENTS_TOPIC` delivers immediate UI updates to clients.
+    *   **Authoritative Path:** Server events are fed into ksqlDB to build a consistent game state.
+*   **Dockerized Ecosystem:** Kafka, Zookeeper, ksqlDB Server, and ksqlDB CLI are managed via Docker for effortless setup.
+*   **Interactive Pygame Client:** A simple graphical client built with Pygame offers an engaging player experience.
 *   **Dynamic Scoring Mechanics:** Features individual scores and a shared team score, with different dot types offering varied scoring effects.
-*   **Clear "Game Over" Condition:** The game concludes decisively when a player's total score (individual + shared) reaches the `WINNING_SCORE`.
+*   **Clear "Game Over" Condition:** The game concludes decisively when a player's total score (individual + shared) reaches the 30 points.
 
 ## 🏗️ Architecture Deep Dive
 
 The Kafka Game system is a symphony of interconnected components, communicating seamlessly via Kafka topics:
 
-**1. Game Clients (`game_client/client.py`):**
+**1. Game Clients:**
     *   The player's window into the game world, crafted with **Pygame**.
     *   Handles graphical rendering, user input (W,A,S,D or arrow keys), and local prediction for smooth avatar movement.
-    *   Publishes player actions (e.g., "join", "move") to the `PLAYER_ACTIONS_TOPIC`.
+    *   Publishes player actions (e.g., "join", "move") to the `PLAYER_ACTIONS_TOPIC` in the database.
     *   Subscribes to `GAME_EVENTS_TOPIC` for real-time state changes (other players' positions, dot states, score updates, and game over signals).
 
 **2. Game Server (`game_server/server.py`):**
-    *   The central nervous system of the game, orchestrating all game logic and rules.
+    *   The central system of the game.
     *   Consumes player inputs from `PLAYER_ACTIONS_TOPIC`.
     *   Manages player states (positions, scores, activity), dot lifecycles, collision detection, and win condition evaluation.
     *   Produces events to multiple Kafka topics, ensuring data flows correctly to both clients and ksqlDB:
         *   `GAME_EVENTS_TOPIC`: For broadcasting fast-path updates to clients.
         *   `PLAYER_STATE_UPDATES_TOPIC`: For feeding detailed player state into ksqlDB to build the `PLAYERS_TABLE`.
-        *   `DOT_EVENTS_TOPIC`: For publishing dot creation and collection events (using tombstones for deletion) to ksqlDB for the `DOTS_TABLE`.
+        *   `DOT_EVENTS_TOPIC`: For publishing dot creation and collection events to ksqlDB for the `DOTS_TABLE`.
 
 **3. Apache Kafka (Managed by `docker-compose.yml`):**
-    *   The distributed, fault-tolerant, messaging backbone that enables asynchronous communication and decouples all system components.
+    *   Enables asynchronous communication.
     *   Broker IP and port are configured in `common/config.py`.
 
 **4. ksqlDB (Managed by `docker-compose.yml`):**
@@ -66,11 +66,11 @@ The Kafka Game system is a symphony of interconnected components, communicating 
 
 **Data Flow & Kafka Topics (defined in `common/config.py`):**
 
-*   `PLAYER_ACTIONS_TOPIC`: Client → Server (Player inputs: "join", "move").
-*   `GAME_EVENTS_TOPIC`: Server → Client (Fast-path updates for responsive UI).
-*   `PLAYER_STATE_UPDATES_TOPIC`: Server → ksqlDB (Data for `PLAYERS_TABLE`).
+*   `PLAYER_ACTIONS_TOPIC`: Client → Server.
+*   `GAME_EVENTS_TOPIC`: Server → Client.
+*   `PLAYER_STATE_UPDATES_TOPIC`: Server → ksqlDB.
     *   *ksqlDB Stream:* `PLAYER_STATE_UPDATES_STREAM`
-*   `DOT_EVENTS_TOPIC`: Server → ksqlDB (Data for `DOTS_TABLE`).
+*   `DOT_EVENTS_TOPIC`: Server → ksqlDB.
     *   *ksqlDB Stream:* `DOT_EVENTS_STREAM`
 *   `PLAYERS_TABLE_TOPIC` & `DOTS_TABLE_TOPIC`: Internal ksqlDB topics backing the materialized tables.
 
@@ -82,7 +82,6 @@ The Kafka Game system is a symphony of interconnected components, communicating 
 -   **Stream Processing:** ksqlDB
 -   **Containerization:** Docker, Docker Compose
 -   **Kafka Python Client:** `confluent-kafka`
--   **Configuration:** Python scripts (`common/config.py`, `setup_environments.py`)
 
 ## 🛠️ Setup and Installation Guide
 
@@ -217,28 +216,6 @@ Peek into the authoritative game state directly via ksqlDB:
     ```
     ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (header)](img/0.png)
     ![ksqlDB CLI output for SELECT query on PLAYERS_TABLE (data)](img/1.png)
-
-## 📂 Project Structure Overview
-A look at the project's organization:
-![VS Code file explorer view of the project structure](img/20.png)
-```
-kafka-game/
-├── common/
-│   ├── config.py           # Central config: Kafka IPs, topics, game rules
-│   └── kafka_service.py    # Kafka producer/consumer helpers
-├── game_client/
-│   └── client.py           # Pygame client: UI, input, Kafka communication
-├── game_server/
-│   └── server.py           # Core game logic, state management, event production
-├── ksql/
-│   ├── cleanup.ksql        # (Optional) For resetting ksqlDB objects
-│   └── game_logic.ksql     # ksqlDB stream & table definitions
-├── .gitignore
-├── docker-compose.yml      # Defines Docker services (Kafka, Zookeeper, ksqlDB)
-├── README.md               # This masterpiece!
-├── requirements.txt        # Python dependencies (confluent-kafka, pygame)
-└── setup_environments.py   # Script for Kafka topic creation
-```
 
 ## 🛑 Stopping the Environment
 
