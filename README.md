@@ -182,7 +182,6 @@ CREATE STREAM IF NOT EXISTS DOT_EVENTS_STREAM (
     PARTITIONS = 1, REPLICAS = 1
 );
 
-   ```
 -- === TABELE STANU (ZMATERIALIZOWANE WIDOKI) ===
 -- To jest "read model" - stan, który będą czytać klienci.
 
