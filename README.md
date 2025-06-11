@@ -195,9 +195,6 @@ The Kafka Game system is a symphony of interconnected components, communicating 
 
 5.  **Enjoy the Game!**
     Use `W, A, S, D` or `Arrow Keys` to move. Collect dots, watch the scores, and aim for victory!
-    ![Pygame client window showing single player gameplay](img/13.png)
-
-    The game concludes with a "GAME OVER" screen (visible in the background of `img/10.png`).
 
 ## 🔍 Inspecting Live Game State with ksqlDB
 
