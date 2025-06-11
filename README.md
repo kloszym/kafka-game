@@ -144,7 +144,7 @@ The Kafka Game system is a symphony of interconnected components, communicating 
     b.  Execute the ksqlDB Logic:
         Open `ksql/game_logic.ksql`.
         ![VS Code showing contents of game_logic.ksql file](img/9.png)
-
+```bash
         Copy the entire content of `ksql/game_logic.ksql` and paste it into the ksqlDB CLI. Press Enter.
         This script defines how ksqlDB processes game data:
         ```ksql
@@ -183,7 +183,7 @@ CREATE STREAM IF NOT EXISTS DOT_EVENTS_STREAM (
     PARTITIONS = 1, REPLICAS = 1
 );
 
-
+   ```
 -- === TABELE STANU (ZMATERIALIZOWANE WIDOKI) ===
 -- To jest "read model" - stan, który będą czytać klienci.
 
