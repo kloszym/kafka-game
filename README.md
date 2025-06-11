@@ -14,7 +14,7 @@ Watch the gameplay:
 
 ## 🚀 Overview
 
-The Kafka Dot Collector Game is a compelling showcase of building responsive, scalable, and resilient multiplayer experiences using an event-driven paradigm. Players control squares, aiming to collect dots that appear randomly. Each collected dot contributes to an individual score, while special dots can affect a shared team score. The game leverages Apache Kafka as its messaging backbone, ensuring reliable communication between clients and the server. ksqlDB is employed for stateful stream processing, providing an authoritative and queryable view of the game state. The entire backend infrastructure is containerized with Docker for easy deployment and management.
+This is simple, proof of concept gameplay made just to show how the streaming databases work in multiplayer game solutions. Players control squares, aiming to collect dots that appear randomly. Each collected dot contributes to an individual score, while special dots can affect a shared team score. When a player gets 30 points, he wins. The game uses streams to ensure reliable communication between clients and the server. ksqlDB is employed for stateful stream processing, providing a real-time view of the game state. The entire backend infrastructure is containerized with Docker for easy deployment and management.
 
 ## ✨ Key Features
 
