@@ -210,7 +210,7 @@ SELECT
 FROM DOT_EVENTS_STREAM
 GROUP BY id
 EMIT CHANGES;
-        ```
+        ```  ```
 
     c.  Verify Table Creation:
         In the ksqlDB CLI:
