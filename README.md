@@ -212,7 +212,7 @@ GROUP BY id
 EMIT CHANGES;
 ``` 
 
-    c.  Verify Table Creation:
+Verify Table Creation:
         In the ksqlDB CLI:
         ```ksql
         SHOW TABLES;
